@@ -353,3 +353,174 @@ use classicmodels;
 
 # == INNER JOIN Clause ==
 # Matches data between tables and only matches
+
+-- select productCode, productName, textDescription
+-- from products
+-- inner join productlines using(productline);
+
+-- select orderNumber, status, sum(quantityOrdered * priceEach) total
+-- from orders
+-- inner join orderdetails using(orderNumber)
+-- group by orderNumber;
+
+# 3 tables
+-- select orderNumber, orderDate, orderLineNumber, productName, quantityOrdered, priceEach
+-- from orders
+-- inner join orderdetails using(orderNumber)
+-- inner join products using(productCode)
+-- order by orderNumber, orderLineNumber;
+
+# 4 tables
+-- select orderNumber, orderDate, customerName, orderLineNumber, 
+-- productName, quantityOrdered, priceEach
+-- from orders
+-- inner join orderdetails using(orderNumber)
+-- inner join products using(productCode)
+-- inner join customers using(customerNumber)
+-- order by orderNumber, orderLineNumber;
+
+# Inner join and operator
+-- select orderNumber, productName, msrp, priceEach
+-- from products p
+-- inner join orderdetails o on p.productCode = o.productCode
+-- and p.msrp > o.priceEach
+-- where p.productCode = 'S10_1678';
+
+# == LEFT JOIN Clause ==
+# Every data in the left table (from / members) and any matches from the joining table
+
+-- select customerNumber, customerName, orderNumber, status
+-- from customers
+-- left join orders using(customerNumber);
+
+-- select customerNumber, customerName, orderNumber, status
+-- from customers
+-- left join orders using(customerNumber)
+-- where orderNumber is null;
+
+-- select lastName, firstName, customerName, checkNumber, amount
+-- from employees
+-- left join customers on employeeNumber = salesRepEmployeeNumber
+-- left join payments using(customerNumber )
+-- order by customerName, checkNumber;
+
+# Difference between WHERE and ON clause
+-- select orderNumber, customerNumber, productCode
+-- from orders
+-- left join orderDetails using(orderNumber)
+-- where orderNumber = 10123;
+
+# ON Clause same as WHERE Clause
+-- select o.orderNumber, customerNumber, productCode
+-- from orders o
+-- left join orderDetails d on o.orderNumber = d.orderNumber 
+-- and o.orderNumber = 10123;
+
+# == RIGHT JOIN Clause ==
+# Every data in the right table (join / committees) and any matches from the left / from table
+
+-- select employeeNumber, customerNumber
+-- from customers
+-- right join employees on salesRepEmployeeNumber = employeeNumber
+-- order by employeeNumber;
+
+-- select employeeNumber, customerNumber
+-- from customers
+-- right join employees on salesRepEmployeeNumber = employeeNumber
+-- where customerNumber is null
+-- order by employeeNumber;
+
+# == Self Join ==
+# Join a table to itself with INNER JOIN or LEFT JOIN
+
+# Inner join
+-- select CONCAT(m.lastName, ', ', m.firstName) as Manager,
+-- CONCAT(e.lastName, ', ', e.firstName) as 'Direct report'
+-- from employees e
+-- inner join employees m on m.employeeNumber = e.reportsTo
+-- order by Manager;
+
+# Left join
+-- select ifnull(CONCAT(m.lastName, ', ', m.firstName), 'Top Manager') as 'Manager',
+-- CONCAT(e.lastName, ', ', e.firstName) as 'Direct report'
+-- from employees e
+-- left join employees m on m.employeeNumber = e.reportsTo
+-- order by manager desc;
+
+-- select c1.city, c1.customerName, c2.customerName
+-- from customers c1
+-- inner join customers c2 on c1.city = c2.city and c1.customerName > c2.customerName
+-- order by c1.city;
+
+# == CROSS JOIN Clause ==
+# No join condition, joins tables and assign each table data to the other table data
+# so both table data matches each other until exhaustion
+
+-- CREATE DATABASE IF NOT EXISTS salesdb;
+USE salesdb;
+
+-- CREATE TABLE products (
+--     id INT PRIMARY KEY AUTO_INCREMENT,
+--     product_name VARCHAR(100),
+--     price DECIMAL(13,2 )
+-- );
+
+-- CREATE TABLE stores (
+--     id INT PRIMARY KEY AUTO_INCREMENT,
+--     store_name VARCHAR(100)
+-- );
+
+-- CREATE TABLE sales (
+--     product_id INT,
+--     store_id INT,
+--     quantity DECIMAL(13 , 2 ) NOT NULL,
+--     sales_date DATE NOT NULL,
+--     PRIMARY KEY (product_id , store_id),
+--     FOREIGN KEY (product_id)
+--         REFERENCES products (id)
+--         ON DELETE CASCADE ON UPDATE CASCADE,
+--     FOREIGN KEY (store_id)
+--         REFERENCES stores (id)
+--         ON DELETE CASCADE ON UPDATE CASCADE
+-- );
+
+-- INSERT INTO products(product_name, price)
+-- VALUES('iPhone', 699),
+--       ('iPad',599),
+--       ('Macbook Pro',1299);
+
+-- INSERT INTO stores(store_name)
+-- VALUES('North'),
+--       ('South');
+
+-- INSERT INTO sales(store_id,product_id,quantity,sales_date)
+-- VALUES(1,1,20,'2017-01-02'),
+--       (1,2,15,'2017-01-05'),
+--       (1,3,25,'2017-01-05'),
+--       (2,1,30,'2017-01-02'),
+--       (2,2,35,'2017-01-05');
+
+-- select store_name, product_name, SUM(quantity * price) as revenue
+-- from sales
+-- inner join products on products.id = sales.product_id
+-- inner join stores on stores.id = sales.store_id
+-- group by store_name, product_name;
+
+-- select store_name, product_name
+-- from stores as a
+-- cross join products as b
+
+-- select b.store_name, a.product_name, ifnull(c.revenue, 0) as revenue
+-- from products as a
+-- cross join stores as b
+-- left join 
+-- 	(select stores.id as store_id, products.id as product_id, store_name, product_name,
+--     round(sum(quantity * price), 0) as revenue
+--     from sales
+--     inner join products on products.id = sales.product_id
+--     inner join stores on stores.id = sales.store_id
+--     group by stores.id, products.id, store_name , product_name) 
+-- 	as c on c.store_id = b.id and c.product_id = a.id
+-- order by b.store_name;
+
+# == GROUP BY Clause ==
