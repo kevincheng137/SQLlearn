@@ -295,6 +295,61 @@ use classicmodels;
 -- group by customerName
 -- order by total DESC;
 
-# == Join Clause ==
+# == JOIN Clause ==
+# joining tables to find matching data and query it
 
+-- CREATE TABLE members (
+--     member_id INT AUTO_INCREMENT,
+--     name VARCHAR(100),
+--     PRIMARY KEY (member_id)
+-- );
 
+-- CREATE TABLE committees (
+--     committee_id INT AUTO_INCREMENT,
+--     name VARCHAR(100),
+--     PRIMARY KEY (committee_id)
+-- );
+
+-- INSERT INTO members(name)
+-- VALUES('John'),('Jane'),('Mary'),('David'),('Amelia');
+
+-- INSERT INTO committees(name)
+-- VALUES('John'),('Mary'),('Amelia'),('Joe');
+
+-- SELECT * FROM members;
+
+-- SELECT * FROM committees;
+
+# INNER JOIN 
+# Matches data between tables and only matches
+-- select m.member_id, m.name as member, c.committee_id, c.name as committee
+-- from members m
+-- inner join committees c on c.name = m.name;
+
+-- select m.member_id, m.name as member, c.committee_id, c.name as committee
+-- from members m
+-- inner join committees c using(name);
+
+# LEFT JOIN
+# Every data in the left table (from / members) and any matches from the joining table
+-- select m.member_id, m.name as member, c.committee_id, c.name as committee
+-- from members m
+-- left join committees c using(name)
+-- where c.committee_id is null;
+
+# RIGHT JOIN
+# Every data in the right table (join / committees) and any matches from the left / from table
+-- select m.member_id, m.name as member, c.committee_id, c.name as committee
+-- from members m
+-- right join committees c using(name)
+-- where m.member_id is null;
+
+# CROSS JOIN
+# No join condition, joins tables and assign each table data to the other table data
+# so both table data matches each other until exhaustion
+-- select m.member_id, m.name as member, c.committee_id, c.name as committee
+-- from members m
+-- cross join committees c;
+
+# == INNER JOIN Clause ==
+# Matches data between tables and only matches
