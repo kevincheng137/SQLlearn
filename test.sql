@@ -457,7 +457,7 @@ use classicmodels;
 # so both table data matches each other until exhaustion
 
 -- CREATE DATABASE IF NOT EXISTS salesdb;
-USE salesdb;
+-- USE salesdb;
 
 -- CREATE TABLE products (
 --     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -524,3 +524,179 @@ USE salesdb;
 -- order by b.store_name;
 
 # == GROUP BY Clause ==
+# group similar rows into 1 category / row
+# despite what the tutorial says, this does not sort them and order by is needed
+
+-- select status
+-- from orders
+-- group by status;
+
+-- select distinct status
+-- from orders;
+
+-- select status, count(*)
+-- from orders
+-- group by status;
+
+-- select status, sum(quantityOrdered * priceEach) as amount
+-- from orders
+-- inner join orderdetails using (orderNumber)
+-- group by status;
+
+-- select orderNumber, sum(quantityOrdered * priceEach) as total
+-- from orderdetails
+-- group by orderNumber;
+
+-- select year(orderDate) as year, sum(quantityOrdered * priceEach) as total
+-- from orders
+-- inner join orderdetails using (orderNumber)
+-- where status = 'Shipped'
+-- group by year(orderDate);
+
+-- select year(orderDate) as year, sum(quantityOrdered * priceEach) as total
+-- from orders
+-- inner join orderdetails using (orderNumber)
+-- where status = 'Shipped'
+-- group by year
+-- having year > 2003;
+
+-- select year(orderDate) as year, count(orderNumber)
+-- from orders
+-- group by year;
+
+# same as select distinct without group by
+-- select state
+-- from customers
+-- group by state;
+
+-- select distinct state
+-- from customers;
+
+-- select distinct state
+-- from customers
+-- order by state;
+
+# == HAVING Clause ==
+# Filters for group by clause
+
+-- select ordernumber, SUM(quantityOrdered) AS itemsCount, 
+-- SUM(priceeach*quantityOrdered) AS total
+-- from orderdetails
+-- group by ordernumber
+-- having total > 10000 and itemsCount > 600;
+
+-- select ordernumber, status, SUM(priceeach*quantityOrdered) AS total
+-- from orderdetails 
+-- inner join orders using(ordernumber)
+-- group by ordernumber, status
+-- having total > 15000 and status = 'Shipped';
+
+# == ROLLUP ==
+# Another group by filter by aggretating data
+
+-- CREATE TABLE sales
+-- SELECT
+--     productLine,
+--     YEAR(orderDate) orderYear,
+--     SUM(quantityOrdered * priceEach) orderValue
+-- FROM
+--     orderDetails
+--         INNER JOIN
+--     orders USING (orderNumber)
+--         INNER JOIN
+--     products USING (productCode)
+-- GROUP BY
+--     productLine ,
+--     YEAR(orderDate);
+    
+-- SELECT * FROM sales;
+
+-- select productline, SUM(orderValue) totalOrderValue
+-- from sales
+-- group by productline;
+
+-- select SUM(orderValue) totalOrderValue
+-- from sales;
+
+-- select productline, SUM(orderValue) totalOrderValue
+-- from sales
+-- group by productline
+-- union all
+-- select null, SUM(orderValue) totalOrderValue
+-- from sales;
+
+# shorten union all with rollup
+-- select productline, SUM(orderValue) totalOrderValue
+-- from sales
+-- group by productline with rollup;
+
+-- select productline, orderYear, SUM(orderValue) totalOrderValue
+-- from sales
+-- group by productline, orderYear with rollup;
+
+-- select orderYear, productline, SUM(orderValue) totalOrderValue
+-- from sales
+-- group by orderYear, productline with rollup;
+
+-- select orderYear, productline, SUM(orderValue) totalOrderValue, grouping(orderYear),
+-- grouping(productline)
+-- from sales
+-- group by orderYear, productline with rollup;
+
+-- select 
+-- 	if(grouping(orderYear), 'All Years', orderYear) orderYear, 
+--     if(grouping(productline), 'All Product Lines', productline) productline, 
+--     SUM(orderValue) totalOrderValue
+-- from sales
+-- group by orderYear, productline with rollup;
+
+# == Subquery ==
+# nested queries
+
+-- select lastName, firstName
+-- from employees
+-- where officeCode in 
+-- (select officeCode
+--  from offices
+--  where country = 'USA');
+
+-- select customerNumber, checkNumber, amount
+-- from payments
+-- where amount = (select max(amount) from payments);
+
+-- select customerNumber, checkNumber, amount
+-- from payments
+-- where amount > (select avg(amount) from payments);
+
+-- select customerName
+-- from customers
+-- where customerNumber not in (select distinct customerNumber from orders);
+
+-- select max(items), min(items), floor(avg(items))
+-- from 
+-- (select orderNumber, count(orderNumber) as items
+--  from orderdetails
+--  group by orderNumber) as lineitems;
+
+-- select productname, buyprice
+-- from products p1
+-- where buyprice > 
+-- (select avg(buyprice)
+--  from products
+--  where productline = p1.productline);
+
+-- select orderNumber, sum(priceEach * quantityOrdered) total
+-- from orderdetails
+-- inner join orders using(orderNumber)
+-- group by orderNumber
+-- having sum(priceEach * quantityOrdered) > 60000;
+
+-- select customerNumber, customerName
+-- from customers c1
+-- where exists
+-- (select orderNumber, sum(priceEach * quantityOrdered)
+--  from orderdetails
+--  inner join orders using(orderNumber)
+--  where customerNumber = c1.customerNumber
+--  group by orderNumber
+--  having sum(priceEach * quantityOrdered) > 60000);
