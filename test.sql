@@ -833,5 +833,72 @@ use classicmodels;
 ## IN vs EXISTS Performance END ##
 
 # == Common Table Expression - CTE ==
+# Temp result like derived table
 
+-- with customers_in_usa as
+-- 	(select customerName, state
+-- 	from customers
+-- 	where country = 'USA')
+-- select customerName
+-- from customers_in_usa
+-- where state = 'CA'
+-- order by customerName;
+
+-- with topsales2003 as (
+-- 	select salesRepEmployeeNumber employeeNumber, sum(quantityOrdered * priceEach) sales
+--     from orders
+--     inner join orderdetails using(orderNumber)
+--     inner join customers using(customerNumber)
+--     where year(shippedDate) = 2003 and status = 'Shipped'
+--     group by salesRepEmployeeNumber
+--     order by sales desc
+--     limit 5
+-- )
+-- select employeeNumber, firstName, lastName, sales
+-- from employees
+-- join topsales2003 using(employeeNumber);
+
+# Advance CTE
+-- with salesrep as (
+-- 	select employeeNumber, concat(firstName, ' ', lastName) as salesrepName
+--     from employees
+--     where jobTitle = 'Sales Rep'
+-- ),
+-- customer_salesrep as (
+-- 	select customerName, salesrepName
+--     from customers
+--     inner join salesrep on employeeNumber = salesrepEmployeeNumber
+-- )
+-- select * 
+-- from customer_salesrep
+-- order by customerName;
+
+# == Recursive CTE ==
+# Recursion CTE
+
+-- with recursive cte_count (n) as (
+-- 	select 1
+--     union all
+--     select n + 1
+--     from cte_count
+--     where n < 3
+-- )
+-- select n
+-- from cte_count;
+
+-- with recursive employee_paths as (
+-- 	select employeeNumber, reportsTo managerNumber, officeCode, 1 lvl
+--     from employees
+--     where reportsTo is null
+--     union all
+--     select e.employeeNumber, e.reportsTo, e.officeCode, lvl+1
+--     from employees e
+--     inner join employee_paths ep on ep.employeeNumber = e.reportsTo
+-- )
+-- select employeeNumber, managerNumber, lvl, city
+-- from employee_paths ep
+-- inner join offices using(officeCode)
+-- order by lvl, city;
+
+# == UNION Operator ==
 
