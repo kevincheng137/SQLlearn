@@ -651,7 +651,7 @@ use classicmodels;
 -- group by orderYear, productline with rollup;
 
 # == Subquery ==
-# nested queries
+# nested queries, doesn't return tables, mostly WHERE
 
 -- select lastName, firstName
 -- from employees
@@ -700,3 +700,138 @@ use classicmodels;
 --  where customerNumber = c1.customerNumber
 --  group by orderNumber
 --  having sum(priceEach * quantityOrdered) > 60000);
+
+# == Derived Table ==
+# Muzt have alias, in FROM, temporary tables, returns a table
+
+-- select productCode, round(sum(quantityOrdered * priceEach)) sales
+-- from orderdetails
+-- inner join orders using(orderNumber)
+-- where year(shippedDate) = 2003
+-- group by productCode
+-- order by sales desc
+-- limit 5;
+
+# Use above table as a derived table below
+-- select productName, sales
+-- from
+-- 	(select productCode, round(sum(quantityOrdered * priceEach)) sales
+-- 	from orderdetails
+-- 	inner join orders using(orderNumber)
+-- 	where year(shippedDate) = 2003
+-- 	group by productCode
+-- 	order by sales desc
+-- 	limit 5) top5products2003
+-- inner join products using(productCode);
+
+-- select customerNumber, round(sum(quantityOrdered * priceEach)) sales,
+-- (case
+--  when sum(quantityOrdered * priceEach) < 10000 THEN 'Silver'
+--  when sum(quantityOrdered * priceEach) BETWEEN 10000 AND 100000 THEN 'Gold'
+--  when sum(quantityOrdered * priceEach) > 100000 THEN 'Platinum'
+--  end) customerGroup
+-- from orderdetails
+-- inner join orders using(orderNumber)
+-- where year(shippedDate) = 2003
+-- group by customerNumber;
+
+# Use above table as a derived table below
+-- select customerGroup, count(cg.customerGroup) AS groupCount
+-- from
+-- 	(select customerNumber, round(sum(quantityOrdered * priceEach)) sales,
+-- 		(case
+-- 		 when sum(quantityOrdered * priceEach) < 10000 THEN 'Silver'
+-- 		 when sum(quantityOrdered * priceEach) BETWEEN 10000 AND 100000 THEN 'Gold'
+-- 		 when sum(quantityOrdered * priceEach) > 100000 THEN 'Platinum'
+-- 		 end) customerGroup
+-- 	from orderdetails
+-- 	inner join orders using(orderNumber)
+-- 	where year(shippedDate) = 2003
+-- 	group by customerNumber) cg
+-- group by cg.customerGroup;
+
+# == EXISTS Operator ==
+# primarily WHERE, determines if exists or not
+
+-- select customerNumber, customerName
+-- from customers
+-- where exists
+-- 	(select 1
+--     from orders
+--     where orders.customernumber = customers.customernumber);
+
+-- select customerNumber, customerName
+-- from customers
+-- where not exists
+-- 	(select 1
+--     from orders
+--     where orders.customernumber = customers.customernumber);
+
+-- select employeenumber, firstname, lastname, extension
+-- from employees
+-- where exists
+-- 	(select 1
+--     from offices
+--     where city = 'San Francisco' AND offices.officeCode = employees.officeCode);
+    
+## UPDATE EXISTS ##
+-- update employees
+-- set extension = concat(extension, '1')
+-- where exists
+-- 	(select 1
+--     from offices
+--     where city = 'San Francisco' AND offices.officeCode = employees.officeCode);
+--     
+-- select employeenumber, firstname, lastname, extension
+-- from employees
+-- where exists
+-- 	(select 1
+--     from offices
+--     where city = 'San Francisco' AND offices.officeCode = employees.officeCode);
+## UPDATE EXISTS END ##
+
+## INSERT INTO ##
+-- create table customers_archive
+-- like customers;
+
+-- insert into customers_archive
+-- select *
+-- from customers
+-- where not exists
+-- 	(select 1
+--     from orders
+--     where orders.customernumber = customers.customernumber);
+
+-- select * from customers_archive;
+## INSERT INTO END ##
+
+-- delete from customers
+-- where exists
+-- 	(select 1
+--     from customers_archive a
+--     where a.customernumber = customers.customernumber);
+
+## IN vs EXISTS Performance ##
+-- select customerNumber, customerName
+-- from customers
+-- where customerNumber in
+-- 	(select customerNumber from orders);
+--     
+-- explain select customerNumber, customerName
+-- from customers
+-- where exists
+-- 	(select 1
+--     from orders
+--     where orders.customernumber = customers.customerNumber);
+
+-- select employeenumber, firstname, lastname
+-- from employees
+-- where officeCode in	
+-- 	(select officeCode
+--     from offices
+--     where offices.city = 'San Francisco');
+## IN vs EXISTS Performance END ##
+
+# == Common Table Expression - CTE ==
+
+
