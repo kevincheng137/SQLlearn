@@ -901,4 +901,33 @@ use classicmodels;
 -- order by lvl, city;
 
 # == UNION Operator ==
+# Combines results into 1 table, keeps only unique values
+
+-- select firstName, lastName
+-- from employees
+-- union
+-- select contactFirstName, contactLastName
+-- from customers;
+
+-- select concat(firstName,' ',lastName) fullname
+-- from employees
+-- union
+-- select concat(contactFirstName,' ',contactLastName)
+-- from customers;
+
+-- select concat(firstName,' ',lastName) fullname
+-- from employees
+-- union
+-- select concat(contactFirstName,' ',contactLastName)
+-- from customers
+-- order by fullname;
+
+-- select concat(firstName,' ',lastName) fullname, 'Employee' as contactType
+-- from employees
+-- union
+-- select concat(contactFirstName,' ',contactLastName), 'Customer' as contactType
+-- from customers
+-- order by fullname;
+
+# == MINUS Operator ==
 
