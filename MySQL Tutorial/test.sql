@@ -930,4 +930,33 @@ use classicmodels;
 -- order by fullname;
 
 # == MINUS Operator ==
+# Whatever that is not the same between two tables, but only 1 table result, left or right
+# of the venn diagram
+# mysql does not support minus, but sql server or postgres do with different word, EXCEPT
+
+# Emulate MINUS in mysql
+-- SELECT 
+--     select_list
+-- FROM 
+--     table1
+-- LEFT JOIN table2 
+--     ON join_predicate
+-- WHERE 
+--     table2.column_name IS NULL; 
+
+# == INTERSECT Operator ==
+# not supported in mysql
+# whatever that is the same between two tables
+
+# two ways to emulate INTERSECT in mysql
+-- SELECT DISTINCT 
+--    id 
+-- FROM t1
+--    INNER JOIN t2 USING(id);
+
+-- SELECT DISTINCT id
+-- FROM t1
+-- WHERE id IN (SELECT id FROM t2);
+
+# == INSERT Statement ==
 
