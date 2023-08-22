@@ -40,4 +40,105 @@ where type = 'Printer'
 Find the model number, RAM and screen size of the laptops with prices over $1000.
 
 == Query ==
+# selecting the model, ram and screen size from Laptop data table where price is above 1000
+# simple
 
+select model, ram, screen
+from Laptop
+where price > 1000
+
+
+**== Exercise: 4 (Serge I: 2002-09-21) ==**
+Find all records from the Printer table containing data about color printers
+
+== Query ==
+# selecting all data from printers that has color
+
+select code, model, color, type, price
+from Printer
+where color = 'y'
+
+
+**== Exercise: 5 (Serge I: 2002-09-30) ==**
+Find the model number, speed and hard drive capacity of PCs cheaper than $600 having a 12x or a 24x CD drive. 
+
+== Query ==
+# selecting model, speed and hd from PC cheaper than 600 and either has 12x or 24x CD drive
+
+select model, speed, hd
+from PC
+where price < 600 and (cd ='12x' or cd = '24x')
+
+
+**== Exercise: 6 (Serge I: 2002-10-28) ==**
+For each maker producing laptops with a hard drive capacity of 10 Gb or higher, find the speed of such laptops. Result set: maker, speed. 
+
+== Query ==
+# selecting maker and speed from Laptop with hd greater than or equal to 10
+# Laptop does not have maker, Product does
+# Thus, have to join the two tables based on the same model to get each laptop maker
+# There were also duplicate data.
+
+select distinct maker, speed
+from Product p
+inner join Laptop l on l.model = p.model
+where hd >= 10
+
+
+**== Exercise: 7 (Serge I: 2002-11-02) ==**
+Get the models and prices for all commercially available products (of any type) produced by maker B. 
+
+== Query ==
+# So the goal is to get all PC, laptop and printer model and price where maker is b
+# There are several ways to do it, such as UNION product model to each other table model
+# Unioning every single table would make the query too long
+
+select p.model, price
+from Product p
+inner join PC on PC.model = p.model
+where maker = 'b'
+UNION
+select p.model, price
+from Product p
+inner join Laptop l on l.model = p.model
+where maker = 'b'
+UNION
+select p.model, price
+from Product p
+inner join Printer pr on pr.model = p.model
+where maker = 'b'
+
+# Left joining the data table would create 1 data table containing the results, but may be filled with nulls
+# but it is shorter than the UNION
+
+select p.model, isnull(pc.price,isnull(l.price,pr.price)) 'price'
+from Product p
+left join PC on PC.model = p.model
+left join Laptop l on l.model = p.model
+left join Printer pr on pr.model = p.model
+where maker = 'b'
+
+# Or creating two tables, A containing all data needed for the result from pc, laptop and printer
+# B containing product and the maker based
+# then join the two tables together to get the result needed.
+# While longer than left join, it is more easier to understand how it works compared to 3 left joins in a row
+# And improved cost compared to left join according to SQL-Exercise
+
+With A as
+(Select model, price from PC
+union all select model, price from Laptop
+union all select model, price from Printer),
+
+B as (Select model from product where maker = 'B')
+
+Select distinct a.model, a.price from a
+inner join b
+on a.model=b.model 
+
+# Going forward, I would like to utilize the With clause more
+
+
+**== Exercise: 8 (Serge I: 2003-02-03) ==**
+Find the makers producing PCs but not laptops. 
+
+== Query ==
