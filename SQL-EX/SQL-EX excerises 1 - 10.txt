@@ -131,7 +131,8 @@ union all select model, price from Printer),
 
 B as (Select model from product where maker = 'B')
 
-Select distinct a.model, a.price from a
+Select distinct a.model, a.price 
+from a
 inner join b
 on a.model=b.model 
 
@@ -140,5 +141,22 @@ on a.model=b.model
 
 **== Exercise: 8 (Serge I: 2003-02-03) ==**
 Find the makers producing PCs but not laptops. 
+
+== Query ==
+# There are makers that make both PC and Laptop, thus we need to find maker that make only PC
+# I was stuck on solving this solution thinking to just find makers that make PC and somehow remove makers that make laptops
+# The intersect, except is what I needed and thinking more than just 1 table to work with.
+
+select maker
+from Product
+where type = 'PC'
+except
+select maker
+from Product
+where type = 'Laptop'
+
+
+**== Exercise: 9 (Serge I: 2002-11-02) ==**
+Find the makers of PCs with a processor speed of 450 MHz or more. Result set: maker. 
 
 == Query ==
